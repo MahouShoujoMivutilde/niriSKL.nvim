@@ -24,13 +24,24 @@ With [lazy.nvim](https://github.com/folke/lazy.nvim) plugin manager:
     -- TODO: add url once posted
     "*this repo url*",
 
-    -- you can omit any option, defaults are shown here for your convenience
+    -- you can omit any option,
+    -- but you MUST at least have `opts = {}` unless you're calling setup() yourself,
+    -- defaults are:
     opts = {
-        DEBUG = false,
-        HIDE_WARNINGS = false,
-        latin_index = 0
+        latin_index = 0,
+        -- DEBUG = false,
+        -- HIDE_WARNINGS = false,
     },
+
+    -- -- by the way, this is equivalent to
+    -- config = function()
+    --     local niriSKL = require("niriSKL")
+    --     niriSKL.setup({
+    --         latin_index = 0,
+    --     })
+    -- end,
 },
+
 ```
 
 And, because it makes sense, make layout tracking in niri _per window_:

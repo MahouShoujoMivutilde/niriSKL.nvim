@@ -6,7 +6,7 @@ local M = {}
 
 local config = {}
 
-config.DEBUG = true
+config.DEBUG = false
 config.HIDE_WARNINGS = false
 config.latin_index = 0
 
