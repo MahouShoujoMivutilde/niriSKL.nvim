@@ -73,3 +73,5 @@ Option  | default | meaning for defaults
 
 This plugin was tested and works fine on niri and neovim from arch repos, so everything latest stable.
 It most likely will work on something older so long as it's not completely ancient, but that's what it's tested at, keep this in mind.
+
+* Neovim v0.10.0+ - because `vim.system()` since it has a proper `timeout` parameter, unlike `io.popen()`.

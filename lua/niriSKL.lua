@@ -2,6 +2,16 @@ if vim.env.XDG_CURRENT_DESKTOP ~= "niri" or vim.env.SSH_TTY ~= nil then
     return
 end
 
+-- if vim.fn.has("nvim-0.10") ~= 1 then
+if vim.system == nil then
+    -- We use vim.system() instead of io.popen() because you can set timeout for
+    -- the execution, which is useful if the command fails but hangs instead
+    -- throwing an error.
+
+    -- Commit 04feb63 and earlier had full io.popen() implementation, if you need it
+    return
+end
+
 local M = {}
 
 local config = {}
@@ -11,14 +21,15 @@ config.HIDE_WARNINGS = false
 config.latin_index = 0
 
 local _who = "[niriSKL]: "
+local _ipc_timeout_ms = 1000
 
-local function iprint(...)
+local function print_info(...)
     if config.DEBUG then
         vim.notify(_who .. table.concat({ ... }, " "), vim.log.levels.INFO)
     end
 end
 
-local function wprint(...)
+local function print_warn(...)
     if not config.HIDE_WARNINGS then
         vim.notify_once(_who .. table.concat({ ... }, " "), vim.log.levels.WARN)
     end
@@ -31,54 +42,48 @@ local function still_alive()
     end
 
     if not vim.uv.fs_stat(vim.env.NIRI_SOCKET) then
-        wprint("env. var. $NIRI_SOCKET is refers to file\n'" .. vim.env.NIRI_SOCKET .. "'\nwhich doesn't exist")
+        print_warn(("env. var. $NIRI_SOCKET is refers to file\n'%s'\nwhich doesn't exist"):format(vim.env.NIRI_SOCKET))
         return false
     end
 
-    -- local pipe = io.popen("echo '\"Version\"' | socat - UNIX-CONNECT:$NIRI_SOCKET 2>&1")
-
-    local pipe = io.popen("niri msg --json version 2>&1")
-    if pipe == nil then
+    local result = vim.system({ "niri", "msg", "--json", "version" }, { text = true }):wait(_ipc_timeout_ms)
+    if result.code ~= 0 then
+        print_warn(("niri msg exited with code %d\n%s"):format(result.code, result.stderr))
+        print_warn("Is $NIRI_SOCKET out of date (e.g. old tmux session)?")
         return false
     end
 
-    local ok, _ = pcall(vim.json.decode, pipe:read("*a"))
-
-    -- TODO: handle if it's just a dead socket that exists, accepts
-    -- connection and command, but doesn't return anything; popen apparently
-    -- doesn't have timeout lol.
-    -- Relevant if e.g. something else is squatting in place of NIRI_SOCKET
-    pipe:close()
+    local ok, _ = pcall(vim.json.decode, result.stdout)
     if not ok then
-        wprint(
-            "can't connect to $NIRI_SOCKET, but socket file exists;\n"
-                .. "is $NIRI_SOCKET out of date (e.g. old tmux session)?"
-        )
+        print_warn("can't decode json from niri msg")
     end
     return ok
 end
 
 -- NOTE: this is 10-15ms, other niri msg calls are much faster
-local function set_layout(layout_index)
+local function set_layout(i)
     -- local _t1 = os.clock()
-    local pipe = io.popen(("niri msg action switch-layout %d"):format(layout_index))
 
-    if pipe ~= nil then
-        pipe:close()
+    local result = vim.system({ "niri", "msg", "action", "switch-layout", i }, { text = true }):wait(_ipc_timeout_ms)
+    if result.code ~= 0 then
+        print_warn(("niri msg exited with code %d\n%s\n"):format(result.code, result.stderr))
+        return
     end
-    iprint("switched layout to", layout_index)
+
+    print_info("switched layout to", i)
+
     -- local _t2 = os.clock()
     -- iprint(("set_layout (new): %g ms"):format( (_t2 - _t1) * 1000 ))
 end
 
 local function save_layout()
-    local pipe = io.popen("niri msg --json keyboard-layouts")
-    if pipe == nil then
-        return nil
+    local result = vim.system({ "niri", "msg", "--json", "keyboard-layouts" }, { text = true }):wait(_ipc_timeout_ms)
+    if result.code ~= 0 then
+        print_warn(("niri msg exited with code %d\n%s\n"):format(result.code, result.stderr))
+        return
     end
 
-    local j = vim.json.decode(pipe:read("*a"))
-    pipe:close()
+    local j = vim.json.decode(result.stdout)
     vim.b._niriSKL_prev_layout = j.current_idx
 end
 
@@ -107,7 +112,7 @@ function M.setup(opts)
             set_layout(vim.b._niriSKL_prev_layout)
 
             local t2 = os.clock()
-            iprint(("restored layout: %g ms"):format((t2 - t1) * 1000))
+            print_info(("restored layout: %g ms"):format((t2 - t1) * 1000))
         end,
         group = niri_augroup,
         desc = "Restore niri keyboard to whatever we were using in Inser mode",
@@ -134,7 +139,7 @@ function M.setup(opts)
             set_layout(config.latin_index)
 
             local t2 = os.clock()
-            iprint(("saved layout: %g ms"):format((t2 - t1) * 1000))
+            print_info(("saved layout: %g ms"):format((t2 - t1) * 1000))
         end,
         group = niri_augroup,
         desc = "Change niri keyboard to latin for Normal mode",
