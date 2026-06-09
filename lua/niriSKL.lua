@@ -35,24 +35,37 @@ local function print_warn(...)
     end
 end
 
+local function run(cmd)
+    local result = vim.system(cmd, { text = true }):wait(_ipc_timeout_ms)
+    if result.code == 124 then
+        print_warn(("%s timed out after %d ms"):format(table.concat(cmd, " "), _ipc_timeout_ms))
+        return
+    elseif result.code ~= 0 then
+        print_warn(("%s exited with code %d\nstderr:\n%s"):format(table.concat(cmd, " "), result.code, result.stderr))
+        return
+    end
+
+    return result
+end
+
 local function still_alive()
     if vim.env.NIRI_SOCKET == nil then
-        -- wprint("env. var. $NIRI_SOCKET is undefined")
         return false
     end
 
-    if not vim.uv.fs_stat(vim.env.NIRI_SOCKET) then
-        print_warn(("env. var. $NIRI_SOCKET is refers to file\n'%s'\nwhich doesn't exist"):format(vim.env.NIRI_SOCKET))
+    local niri_stat = vim.uv.fs_stat(vim.env.NIRI_SOCKET)
+    if not niri_stat then
+        print_warn(("$NIRI_SOCKET='%s',\na file which doesn't exist"):format(vim.env.NIRI_SOCKET))
         return false
     end
 
-    local result = vim.system({ "niri", "msg", "--json", "version" }, { text = true }):wait(_ipc_timeout_ms)
-    if result.code == 124 then
-        print_warn(("niri msg timed out after %d ms"):format(_ipc_timeout_ms))
+    if niri_stat.type ~= "socket" then
+        print_warn(("$NIRI_SOCKET='%s',\nwhich isn't a unix socket it should be"):format(vim.env.NIRI_SOCKET))
         return false
-    elseif  result.code ~= 0 then
-        print_warn(("niri msg exited with code %d\n%s"):format(result.code, result.stderr))
-        print_warn("Is $NIRI_SOCKET out of date (e.g. old tmux session)?")
+    end
+
+    local result = run({ "niri", "msg", "--json", "version" })
+    if result == nil then
         return false
     end
 
@@ -67,12 +80,8 @@ end
 local function set_layout(i)
     -- local _t1 = os.clock()
 
-    local result = vim.system({ "niri", "msg", "action", "switch-layout", i }, { text = true }):wait(_ipc_timeout_ms)
-    if result.code == 124 then
-        print_warn(("niri msg timed out after %d ms"):format(_ipc_timeout_ms))
-        return
-    elseif  result.code ~= 0 then
-        print_warn(("niri msg exited with code %d\n%s"):format(result.code, result.stderr))
+    local result = run({ "niri", "msg", "action", "switch-layout", i })
+    if result == nil then
         return
     end
 
@@ -83,12 +92,8 @@ local function set_layout(i)
 end
 
 local function save_layout()
-    local result = vim.system({ "niri", "msg", "--json", "keyboard-layouts" }, { text = true }):wait(_ipc_timeout_ms)
-    if result.code == 124 then
-        print_warn(("niri msg timed out after %d ms"):format(_ipc_timeout_ms))
-        return
-    elseif  result.code ~= 0 then
-        print_warn(("niri msg exited with code %d\n%s"):format(result.code, result.stderr))
+    local result = run({ "niri", "msg", "--json", "keyboard-layouts" })
+    if result == nil then
         return
     end
 
