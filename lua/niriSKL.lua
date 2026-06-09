@@ -37,6 +37,7 @@ end
 
 local function run(cmd)
     local result = vim.system(cmd, { text = true }):wait(_ipc_timeout_ms)
+
     if result.code == 124 then
         print_warn(("%s timed out after %d ms"):format(table.concat(cmd, " "), _ipc_timeout_ms))
         return
@@ -64,16 +65,21 @@ local function still_alive()
         return false
     end
 
-    local result = run({ "niri", "msg", "--json", "version" })
-    if result == nil then
-        return false
-    end
+    -- NOTE: this is more precise, but slower; the functions after will check `niri msg` results anyway
 
-    local ok, _ = pcall(vim.json.decode, result.stdout)
-    if not ok then
-        print_warn("can't decode json from niri msg")
-    end
-    return ok
+    -- local result = run({ "niri", "msg", "--json", "version" })
+    -- if result == nil then
+    --     return false
+    -- end
+    --
+    -- local ok, _ = pcall(vim.json.decode, result.stdout)
+    -- if not ok then
+    --     print_warn("can't decode json from niri msg")
+    -- end
+    -- return ok
+
+    -- (probably)
+    return true
 end
 
 -- NOTE: this is 10-15ms, other niri msg calls are much faster
@@ -88,7 +94,7 @@ local function set_layout(i)
     print_info("switched layout to", i)
 
     -- local _t2 = os.clock()
-    -- iprint(("set_layout (new): %g ms"):format( (_t2 - _t1) * 1000 ))
+    -- print_info(("set_layout (new): %g ms"):format( (_t2 - _t1) * 1000 ))
 end
 
 local function save_layout()
