@@ -10,7 +10,7 @@ config.DEBUG = false
 config.HIDE_WARNINGS = false
 config.latin_index = 0
 
-local _who = "[niriSKL] "
+local _who = "[niriSKL]: "
 
 local function iprint(...)
     if config.DEBUG then
@@ -26,7 +26,7 @@ end
 
 local function still_alive()
     if vim.env.NIRI_SOCKET == nil then
-        wprint("env. var. $NIRI_SOCKET is undefined")
+        -- wprint("env. var. $NIRI_SOCKET is undefined")
         return false
     end
 
@@ -44,7 +44,7 @@ local function still_alive()
 
     local ok, _ = pcall(vim.json.decode, pipe:read("*a"))
 
-    -- FIXME: handle if it's just a dead socket that exists, accepts
+    -- TODO: handle if it's just a dead socket that exists, accepts
     -- connection and command, but doesn't return anything; popen apparently
     -- doesn't have timeout lol.
     -- Relevant if e.g. something else is squatting in place of NIRI_SOCKET
@@ -125,8 +125,6 @@ function M.setup(opts)
 
             -- we don't know if the user switched to some other window, changed layout,
             -- and switched back, have to query it every time
-            --
-            -- NOTE: if track-layout is "global", we could cache it
             save_layout()
 
             if vim.b._niriSKL_prev_layout == config.latin_index then

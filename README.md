@@ -1,4 +1,4 @@
-# niriSKL
+# niriSKL ("smart keyboard layout")
 
 niriSKL is a lua plugin for neovim that switches [niri](https://github.com/niri-wm/niri/) keyboard layout so that you have:
 * a preconfigured latin layout when in the Normal mode
