@@ -140,7 +140,6 @@ function M.setup(opts)
 
     vim.api.nvim_create_autocmd({ "InsertLeave" }, {
         -- store current layout
-        -- XXX: this is like 20ms total in the worst case, because `niri msg` is slow; improve
         callback = function()
             local t1 = os.clock()
 
