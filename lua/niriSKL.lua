@@ -39,10 +39,10 @@ local function run(cmd)
     local result = vim.system(cmd, { text = true }):wait(_ipc_timeout_ms)
 
     if result.code == 124 then
-        print_warn(("%s timed out after %d ms"):format(table.concat(cmd, " "), _ipc_timeout_ms))
+        print_warn(("'%s' timed out after %d ms"):format(table.concat(cmd, " "), _ipc_timeout_ms))
         return
     elseif result.code ~= 0 then
-        print_warn(("%s exited with code %d\nstderr:\n%s"):format(table.concat(cmd, " "), result.code, result.stderr))
+        print_warn(("'%s' exited with code %d\nstderr:\n%s"):format(table.concat(cmd, " "), result.code, result.stderr))
         return
     end
 
