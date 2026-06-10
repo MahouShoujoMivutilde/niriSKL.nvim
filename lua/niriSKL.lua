@@ -23,17 +23,20 @@ config.latin_index = 0
 local _who = "[niriSKL]: "
 local _ipc_timeout_ms = 200 -- if it doesn't respond after 0.2s it's probably broken anyway
 
+
 local function print_info(...)
     if config.DEBUG then
         vim.notify(_who .. table.concat({ ... }, " "), vim.log.levels.INFO)
     end
 end
 
+
 local function print_warn(...)
     if not config.HIDE_WARNINGS then
         vim.notify_once(_who .. table.concat({ ... }, " "), vim.log.levels.WARN)
     end
 end
+
 
 local function run(cmd)
     local result = vim.system(cmd, { text = true }):wait(_ipc_timeout_ms)
@@ -48,6 +51,7 @@ local function run(cmd)
 
     return result
 end
+
 
 local function still_alive()
     if vim.env.NIRI_SOCKET == nil then
@@ -82,6 +86,7 @@ local function still_alive()
     return true
 end
 
+
 -- NOTE: this is 10-15ms, other niri msg calls are much faster
 local function set_layout(i)
     -- local _t1 = os.clock()
@@ -102,6 +107,7 @@ local function set_layout(i)
     -- print_info(("set_layout (new): %g ms"):format( (_t2 - _t1) * 1000 ))
 end
 
+
 local function save_layout()
     local result = run({ "niri", "msg", "--json", "keyboard-layouts" })
     if result == nil then
@@ -112,9 +118,13 @@ local function save_layout()
     vim.b._niriSKL_prev_layout = j.current_idx
 end
 
-function M.setup(opts)
-    opts = opts or {}
-    config = vim.tbl_deep_extend("force", config, opts)
+
+-- XXX: this assumes that setup(your_options) already happened at some point
+-- (manually or via your plugin manager). If it didn't - it will run at defaults.
+function M.launch()
+    if vim.g._niriSKL_is_running then
+        return
+    end
 
     vim.b._niriSKL_prev_layout = nil
 
@@ -163,7 +173,26 @@ function M.setup(opts)
         group = niri_augroup,
         desc = "Change niri keyboard to latin for Normal mode",
     })
+
+    vim.g._niriSKL_is_running = true
 end
+
+function M.stop()
+    if not vim.g._niriSKL_is_running then
+        return
+    end
+    vim.api.nvim_del_augroup_by_name("niriSKL")
+    vim.g._niriSKL_is_running = false
+end
+
+
+function M.setup(opts)
+    opts = opts or {}
+    config = vim.tbl_deep_extend("force", config, opts)
+
+    M.launch()
+end
+
 
 -- Debug stuff; plugin must be required as global to access
 -- e.g.
@@ -177,6 +206,7 @@ end
 function M._show_state()
     print(vim.inspect(config))
     print("vim.b._niriSKL_prev_layout =", vim.inspect(vim.b._niriSKL_prev_layout))
+    print("vim.g._niriSKL_is_running =", vim.inspect(vim.b._niriSKL_is_running))
 end
 
 return M
