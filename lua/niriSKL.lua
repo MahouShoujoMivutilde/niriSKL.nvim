@@ -21,7 +21,7 @@ config.HIDE_WARNINGS = false
 config.latin_index = 0
 
 local _who = "[niriSKL]: "
-local _ipc_timeout_ms = 1000
+local _ipc_timeout_ms = 200 -- if it doesn't respond after 0.2s it's probably broken anyway
 
 local function print_info(...)
     if config.DEBUG then
@@ -86,6 +86,11 @@ end
 local function set_layout(i)
     -- local _t1 = os.clock()
 
+    -- first insert
+    if i == nil then
+        return
+    end
+
     local result = run({ "niri", "msg", "action", "switch-layout", i })
     if result == nil then
         return
@@ -119,11 +124,6 @@ function M.setup(opts)
         -- switch to whatever layout we were using
         callback = function()
             local t1 = os.clock()
-
-            if vim.b._niriSKL_prev_layout == nil then
-                -- first insert
-                return
-            end
 
             if not still_alive() then
                 return
