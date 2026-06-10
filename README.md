@@ -32,8 +32,7 @@ With [lazy.nvim](https://github.com/folke/lazy.nvim) plugin manager:
 
 ```lua
 {
-    -- TODO: add url once posted
-    "*this repo url*",
+    "MahouShoujoMivutilde/niriSKL.nvim",
 
     -- you can omit any option,
     -- but you MUST at least have `opts = {}` unless you're calling setup() yourself,
