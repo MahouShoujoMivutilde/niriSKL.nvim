@@ -78,3 +78,13 @@ Option  | default | meaning for the default values
 `DEBUG` | false | don't show "layout saved/restored" notifications
 `HIDE_WARNINGS` | false | notify if connection to niri socket is lost (stale env. detection)
 `latin_index` | 0 | index of the layout that will be used for the NORMAL mode. E.g. if you have `us,ru` in niri's keyboard layout, 0 will use `us` in NORMAL mode. But if you have `de,us,ru`, to use `us` in NORMAL mode set `latin_index` to 1
+
+### Commands
+
+> [!NOTE]
+> All of them assume `setup(your_options)` was already called in some fashion - e.g. by your plugin manager like recommended above via `opts = ...`.
+> **If it wasn't, niriSKL started with these commands will run with the default options.**
+
+* `:NiriSKL toggle`
+* `:NiriSKL enable`
+* `:NiriSKL disable`
