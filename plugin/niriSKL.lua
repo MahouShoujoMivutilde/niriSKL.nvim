@@ -22,6 +22,11 @@ local niriSKL_cmd_sub = {
             end
         end,
     },
+    _dump_state = {
+        impl = function ()
+            require("niriSKL")._dump_state()
+        end
+    }
 }
 
 local function niriSKL_cmd(opts)
@@ -42,6 +47,7 @@ vim.api.nvim_create_user_command("NiriSKL", niriSKL_cmd, {
             "toggle",
             "disable",
             "enable",
+            "_dump_state"
         }
         return vim.iter(args)
             :filter(function(arg)
@@ -50,3 +56,6 @@ vim.api.nvim_create_user_command("NiriSKL", niriSKL_cmd, {
             :totable()
     end,
 })
+
+-- start with defaults as _apparently_ you can call setup() later and it'll still redefine the config just fine
+require("niriSKL").launch()

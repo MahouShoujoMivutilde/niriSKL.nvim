@@ -20,8 +20,10 @@ config.DEBUG = false
 config.HIDE_WARNINGS = false
 config.latin_index = 0
 
+config._ipc_timeout_ms = 200 -- if it doesn't respond after 0.2s it's probably broken anyway
+config._augroup = "niriSKL" -- but if you run several setup() and launch()/stop() with different group names that's on you lol
+
 local _who = "[niriSKL]: "
-local _ipc_timeout_ms = 200 -- if it doesn't respond after 0.2s it's probably broken anyway
 
 
 local function print_info(...)
@@ -39,10 +41,10 @@ end
 
 
 local function run(cmd)
-    local result = vim.system(cmd, { text = true }):wait(_ipc_timeout_ms)
+    local result = vim.system(cmd, { text = true }):wait(config._ipc_timeout_ms)
 
     if result.code == 124 then
-        print_warn(("'%s' timed out after %d ms"):format(table.concat(cmd, " "), _ipc_timeout_ms))
+        print_warn(("'%s' timed out after %d ms"):format(table.concat(cmd, " "), config._ipc_timeout_ms))
         return
     elseif result.code ~= 0 then
         print_warn(("'%s' exited with code %d\nstderr:\n%s"):format(table.concat(cmd, " "), result.code, result.stderr))
@@ -115,7 +117,7 @@ local function save_layout()
     end
 
     local j = vim.json.decode(result.stdout)
-    vim.b._niriSKL_prev_layout = j.current_idx
+    vim.b._niriSKL_insert_mode_layout = j.current_idx
 end
 
 
@@ -126,9 +128,9 @@ function M.launch()
         return
     end
 
-    vim.b._niriSKL_prev_layout = nil
+    vim.b._niriSKL_insert_mode_layout = nil
 
-    local niri_augroup = vim.api.nvim_create_augroup("niriSKL", { clear = true })
+    local niri_augroup = vim.api.nvim_create_augroup(config._augroup, { clear = true })
 
     vim.api.nvim_create_autocmd({ "InsertEnter" }, {
         -- switch to whatever layout we were using
@@ -139,7 +141,7 @@ function M.launch()
                 return
             end
 
-            set_layout(vim.b._niriSKL_prev_layout)
+            set_layout(vim.b._niriSKL_insert_mode_layout)
 
             local t2 = os.clock()
             print_info(("restored layout: %g ms"):format((t2 - t1) * 1000))
@@ -161,7 +163,7 @@ function M.launch()
             -- and switched back, have to query it every time
             save_layout()
 
-            if vim.b._niriSKL_prev_layout == config.latin_index then
+            if vim.b._niriSKL_insert_mode_layout == config.latin_index then
                 return
             end
 
@@ -181,7 +183,7 @@ function M.stop()
     if not vim.g._niriSKL_is_running then
         return
     end
-    vim.api.nvim_del_augroup_by_name("niriSKL")
+    vim.api.nvim_del_augroup_by_name(config._augroup)
     vim.g._niriSKL_is_running = false
 end
 
@@ -190,23 +192,17 @@ function M.setup(opts)
     opts = opts or {}
     config = vim.tbl_deep_extend("force", config, opts)
 
-    M.launch()
+    -- M.launch()
 end
 
 
--- Debug stuff; plugin must be required as global to access
--- e.g.
--- config = function ()
---             niriSKL = require("niriSKL")
---             niriSKL.setup({
---                 DEBUG = false
---             })
---         end
-
-function M._show_state()
-    print(vim.inspect(config))
-    print("vim.b._niriSKL_prev_layout =", vim.inspect(vim.b._niriSKL_prev_layout))
-    print("vim.g._niriSKL_is_running =", vim.inspect(vim.b._niriSKL_is_running))
+function M._dump_state()
+    print("[DEBUG STUFF] niriSKL's internal variables:\n\n")
+    print("$NIRI_SOCKET =", vim.env.NIRI_SOCKET)
+    print("config =", vim.inspect(config))
+    print("vim.b._niriSKL_insert_mode_layout =", vim.inspect(vim.b._niriSKL_insert_mode_layout))
+    print("vim.g._niriSKL_is_running =", vim.inspect(vim.g._niriSKL_is_running))
+    print("\n")
 end
 
 return M

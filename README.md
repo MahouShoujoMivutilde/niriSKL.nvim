@@ -24,7 +24,7 @@ It's much simpler to just switch to the correct layout in NORMAL mode, and resto
 
 ### Requirements
 
-* Neovim v0.10.0+ - because `vim.system()` since it has a proper timeout parameter and can get an exit code, unlike `io.popen()`
+* Neovim v0.10.0+ - because it's using `vim.system()` since it has a proper timeout parameter and can get an exit code, unlike `io.popen()`
 
 ### Install
 
@@ -34,11 +34,9 @@ With [lazy.nvim](https://github.com/folke/lazy.nvim) plugin manager:
 {
     "MahouShoujoMivutilde/niriSKL.nvim",
 
-    -- you can omit any option,
-    -- but you MUST at least have `opts = {}` unless you're calling setup() yourself,
     -- defaults are:
     opts = {
-        latin_index = 0,
+        latin_index = 0, -- index of the layout to use for Normal mode
         -- DEBUG = false,
         -- HIDE_WARNINGS = false,
     },
@@ -87,3 +85,4 @@ Option  | default | meaning for the default values
 * `:NiriSKL toggle`
 * `:NiriSKL enable`
 * `:NiriSKL disable`
+* `:NiriSKL _dump_state` - show internal variables
