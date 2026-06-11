@@ -72,9 +72,17 @@ That way even when you switch layout in different window, it will still work as 
 
 Option  | default | meaning for the default values
 ------|---------|--------
-`DEBUG` | false | don't show "layout saved/restored" notifications
-`HIDE_WARNINGS` | false | notify if connection to niri socket is lost (stale env. detection)
-`latin_index` | 0 | index of the layout that will be used for the NORMAL mode. E.g. if you have `us,ru` in niri's keyboard layout, 0 will use `us` in NORMAL mode. But if you have `de,us,ru`, to use `us` in NORMAL mode set `latin_index` to 1
+`latin_index` | 0 | Index of the layout that will be used for the NORMAL mode. E.g. if you have `us,ru` in niri's keyboard layout, 0 will use `us` in NORMAL mode. But if you have `de,us,ru`, to use `us` in NORMAL mode set `latin_index` to 1
+`DEBUG` | false | Don't show "layout saved/restored" notifications.
+`HIDE_WARNINGS` | false | Notify if connection to niri socket is lost (stale env. detection).
+
+There are also `_` options that you're not supposed to touch, but they're there if something doesn't work:
+
+Option  | default | meaning
+------|---------|--------
+`_ipc_timeout_ms` | 200 | How long, in ms, `niri msg ...` is allowed to run until we give up on it and kill it. Typical roundtrip is 7-15ms.
+`_augroup` | niriSKL | Autocommand group name niriSKL will use.
+
 
 ### Commands
 
