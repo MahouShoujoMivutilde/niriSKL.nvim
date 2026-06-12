@@ -3,6 +3,10 @@ M = {}
 local function noop(_) end
 
 local function explain(_)
+    if M.are_we_good() then
+        return
+    end
+
     local msg = "[niriSKL] is not running, why:\n\n"
 
     if vim.env.XDG_CURRENT_DESKTOP ~= "niri" then
@@ -15,10 +19,6 @@ local function explain(_)
 
     if vim.system == nil then
         msg = msg .. ("vim.system() is %s, but should be a function. Is neovim pre v0.10.0?\n"):format(vim.inspect(vim.system))
-    end
-
-    if M.are_we_good() then
-        return
     end
 
     vim.notify(msg, vim.log.levels.WARN)
