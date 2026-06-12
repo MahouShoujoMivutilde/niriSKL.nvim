@@ -98,12 +98,21 @@ local function set_layout(i)
 end
 
 local function save_layout()
-    local result = run({ "niri", "msg", "--json", "keyboard-layouts" })
+    local cmd = { "niri", "msg", "--json", "keyboard-layouts" }
+    local result = run(cmd)
     if result == nil then
         return
     end
 
     local j = vim.json.decode(result.stdout)
+    if j.current_idx == nil then
+        print_warn(
+            ("%s\nreturned\n%s\n\nwhich doesn't have .current_idx field we need"):format(
+                table.concat(cmd, " "),
+                vim.inspect(j)
+            )
+        )
+    end
     vim.b._niriSKL_insert_mode_layout = j.current_idx
 end
 
