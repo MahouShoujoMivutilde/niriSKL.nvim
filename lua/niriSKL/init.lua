@@ -1,7 +1,7 @@
 local req = require("niriSKL.env_requirements")
 
 if not req.are_we_good() then
-    -- guard automatic setup() etc calls in env. not meeting requirements
+    -- guards automatic setup() etc calls in env. not meeting requirements
     return req.mock
 end
 

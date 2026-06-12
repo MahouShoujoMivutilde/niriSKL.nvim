@@ -24,6 +24,7 @@ local function explain(_)
     vim.notify(msg, vim.log.levels.WARN)
 end
 
+-- XXX: .mock should contain the same function names the main niriSKL module M does
 M.mock = { setup = noop, launch = noop, stop = noop, start = noop, _dump_state = explain }
 
 function M.are_we_good()
