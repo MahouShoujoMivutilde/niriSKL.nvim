@@ -14,7 +14,7 @@ local function explain(_)
     end
 
     if vim.env.SSH_TTY ~= nil then
-        msg = msg .. ("$SSH_TTY = %s, but shouldn't be defined. Are we running from ssh session?\n"):format(vim.env.SSH_TTY)
+        msg = msg .. ("$SSH_TTY = %s, but shouldn't be defined. Are we running inside ssh session?\n"):format(vim.env.SSH_TTY)
     end
 
     if vim.system == nil then
