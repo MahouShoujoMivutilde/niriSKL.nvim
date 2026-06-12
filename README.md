@@ -52,6 +52,8 @@ With [lazy.nvim](https://github.com/folke/lazy.nvim) plugin manager:
 
 ```
 
+Btw, the plugin will silently not launch if you're connecting via remote session or niri isn't running. If that happens, you can see why exactly it didn't start via `:NiriSKL _dump_state`.
+
 And, because it makes sense, make layout tracking in niri _per window_:
 
 ```kdl
