@@ -93,4 +93,4 @@ Option  | default | meaning
 * `:NiriSKL toggle`
 * `:NiriSKL enable`
 * `:NiriSKL disable`
-* `:NiriSKL _dump_state` - show internal variables
+* `:NiriSKL _dump_state` - show internal variables, helpful to understand why it might not work
