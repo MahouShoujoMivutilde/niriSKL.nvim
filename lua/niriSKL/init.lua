@@ -165,12 +165,23 @@ function M.launch()
     vim.g._niriSKL_is_running = true
 end
 
+-- for :NiriSKL commands
 function M.stop()
     if not vim.g._niriSKL_is_running then
         return
     end
     vim.api.nvim_del_augroup_by_name(config._augroup)
     vim.g._niriSKL_is_running = false
+    vim.notify("plugin disabled", vim.log.levels.INFO)
+end
+
+-- for :NiriSKL commands
+function M.start()
+    if vim.g._niriSKL_is_running then
+        return
+    end
+    M.launch()
+    vim.notify("plugin enabled", vim.log.levels.INFO)
 end
 
 function M.setup(opts)

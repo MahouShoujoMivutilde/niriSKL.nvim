@@ -3,7 +3,7 @@ M = {}
 local function noop(_) end
 
 local function explain(_)
-    local msg = "[niriSKL] not running, state:\n\n"
+    local msg = "[niriSKL] is not running, why:\n\n"
 
     if vim.env.XDG_CURRENT_DESKTOP ~= "niri" then
         msg = msg .. ("$XDG_CURRENT_DESKTOP = %s, but should be niri.\n"):format(vim.env.XDG_CURRENT_DESKTOP)
@@ -24,7 +24,7 @@ local function explain(_)
     vim.notify(msg, vim.log.levels.WARN)
 end
 
-M.mock = { setup = noop, launch = noop, stop = noop, _dump_state = explain }
+M.mock = { setup = noop, launch = noop, stop = noop, start = noop, _dump_state = explain }
 
 function M.are_we_good()
     if vim.env.XDG_CURRENT_DESKTOP ~= "niri" or vim.env.SSH_TTY ~= nil or vim.system == nil then

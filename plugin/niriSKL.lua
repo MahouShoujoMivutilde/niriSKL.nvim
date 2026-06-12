@@ -2,23 +2,19 @@ local niriSKL_cmd_sub = {
     disable = {
         impl = function()
             require("niriSKL").stop()
-            vim.notify("plugin disabled", vim.log.levels.INFO)
         end,
     },
     enable = {
         impl = function()
-            require("niriSKL").launch()
-            vim.notify("plugin enabled", vim.log.levels.INFO)
+            require("niriSKL").start()
         end,
     },
     toggle = {
         impl = function()
             if not vim.g._niriSKL_is_running then
-                require("niriSKL").launch()
-                vim.notify("plugin enabled", vim.log.levels.INFO)
+                require("niriSKL").start()
             else
                 require("niriSKL").stop()
-                vim.notify("plugin disabled", vim.log.levels.INFO)
             end
         end,
     },
