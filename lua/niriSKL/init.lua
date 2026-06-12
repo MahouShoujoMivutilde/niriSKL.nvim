@@ -1,15 +1,8 @@
-if vim.env.XDG_CURRENT_DESKTOP ~= "niri" or vim.env.SSH_TTY ~= nil then
-    return
-end
+local req = require("niriSKL.env_requirements")
 
--- if vim.fn.has("nvim-0.10") ~= 1 then
-if vim.system == nil then
-    -- We use vim.system() instead of io.popen() because you can set timeout for
-    -- the execution, which is useful if the command fails but hangs instead
-    -- throwing an error.
-
-    -- Commit 04feb63 and earlier had full io.popen() implementation, if you need it
-    return
+if not req.are_we_good() then
+    -- guard automatic setup() etc calls in env. not meeting requirements
+    return req.mock
 end
 
 local M = {}
@@ -25,20 +18,17 @@ config._augroup = "niriSKL" -- but if you run several setup() and launch()/stop(
 
 local _who = "[niriSKL]: "
 
-
 local function print_info(...)
     if config.DEBUG then
         vim.notify(_who .. table.concat({ ... }, " "), vim.log.levels.INFO)
     end
 end
 
-
 local function print_warn(...)
     if not config.HIDE_WARNINGS then
         vim.notify_once(_who .. table.concat({ ... }, " "), vim.log.levels.WARN)
     end
 end
-
 
 local function run(cmd)
     local result = vim.system(cmd, { text = true }):wait(config._ipc_timeout_ms)
@@ -53,7 +43,6 @@ local function run(cmd)
 
     return result
 end
-
 
 local function still_alive()
     if vim.env.NIRI_SOCKET == nil then
@@ -88,7 +77,6 @@ local function still_alive()
     return true
 end
 
-
 -- NOTE: this is 10-15ms, other niri msg calls are much faster
 local function set_layout(i)
     -- local _t1 = os.clock()
@@ -109,7 +97,6 @@ local function set_layout(i)
     -- print_info(("set_layout (new): %g ms"):format( (_t2 - _t1) * 1000 ))
 end
 
-
 local function save_layout()
     local result = run({ "niri", "msg", "--json", "keyboard-layouts" })
     if result == nil then
@@ -119,7 +106,6 @@ local function save_layout()
     local j = vim.json.decode(result.stdout)
     vim.b._niriSKL_insert_mode_layout = j.current_idx
 end
-
 
 -- XXX: this assumes that setup(your_options) already happened at some point
 -- (manually or via your plugin manager). If it didn't - it will run at defaults.
@@ -187,14 +173,12 @@ function M.stop()
     vim.g._niriSKL_is_running = false
 end
 
-
 function M.setup(opts)
     opts = opts or {}
     config = vim.tbl_deep_extend("force", config, opts)
 
     -- M.launch()
 end
-
 
 function M._dump_state()
     print("[DEBUG STUFF] niriSKL's internal variables:\n\n")
