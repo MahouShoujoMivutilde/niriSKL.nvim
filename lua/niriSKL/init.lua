@@ -5,6 +5,10 @@ if not req.are_we_good() then
     return req.mock
 end
 
+-- state vars
+vim.g._niriSKL_is_running = false
+vim.b._niriSKL_insert_mode_layout = nil
+
 local M = {}
 
 local config = {}
@@ -31,6 +35,8 @@ local function print_warn(...)
 end
 
 local function run(cmd)
+    -- TODO: maybe fallback to vim.fn.system() + coreutils timeout for pre v0.10.0;
+    --       see lazy.nvim install snip
     local result = vim.system(cmd, { text = true }):wait(config._ipc_timeout_ms)
 
     if result.code == 124 then
@@ -119,7 +125,7 @@ end
 -- XXX: this assumes that setup(your_options) already happened at some point
 -- (manually or via your plugin manager). If it didn't - it will run at defaults.
 function M.launch()
-    if vim.g._niriSKL_is_running then
+    if M.is_running() then
         return
     end
 
@@ -174,9 +180,13 @@ function M.launch()
     vim.g._niriSKL_is_running = true
 end
 
+function M.is_running()
+    return vim.g._niriSKL_is_running
+end
+
 -- for :NiriSKL commands
 function M.stop()
-    if not vim.g._niriSKL_is_running then
+    if not M.is_running() then
         return
     end
     vim.api.nvim_del_augroup_by_name(config._augroup)
@@ -186,7 +196,7 @@ end
 
 -- for :NiriSKL commands
 function M.start()
-    if vim.g._niriSKL_is_running then
+    if M.is_running() then
         return
     end
     M.launch()

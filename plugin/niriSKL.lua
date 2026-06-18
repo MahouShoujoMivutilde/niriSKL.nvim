@@ -11,10 +11,11 @@ local niriSKL_cmd_sub = {
     },
     toggle = {
         impl = function()
-            if not vim.g._niriSKL_is_running then
-                require("niriSKL").start()
+            local niriSKL = require("niriSKL")
+            if not niriSKL.is_running() then
+                niriSKL.start()
             else
-                require("niriSKL").stop()
+                niriSKL.stop()
             end
         end,
     },
