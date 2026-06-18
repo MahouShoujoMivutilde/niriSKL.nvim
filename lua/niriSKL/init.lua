@@ -112,12 +112,7 @@ local function save_layout()
 
     local j = vim.json.decode(result.stdout)
     if j.current_idx == nil then
-        print_warn(
-            ("%s\nreturned\n%s\n\nwhich doesn't have .current_idx field we need"):format(
-                table.concat(cmd, " "),
-                vim.inspect(j)
-            )
-        )
+        print_warn(("%s\nreturned\n%s\n\nwhich doesn't have .current_idx field we need"):format(table.concat(cmd, " "), vim.inspect(j)))
     end
     vim.b._niriSKL_insert_mode_layout = j.current_idx
 end

@@ -21,15 +21,11 @@ local function explain(_)
     end
 
     if vim.env.SSH_TTY ~= nil then
-        msg = msg
-            .. ("$SSH_TTY = %s, but shouldn't be defined. Are we running inside ssh session?\n"):format(vim.env.SSH_TTY)
+        msg = msg .. ("$SSH_TTY = %s, but shouldn't be defined. Are we running inside ssh session?\n"):format(vim.env.SSH_TTY)
     end
 
     if vim.system == nil then
-        msg = msg
-            .. ("vim.system() is %s, but should be a function. Is neovim pre v0.10.0?\n"):format(
-                vim.inspect(vim.system)
-            )
+        msg = msg .. ("vim.system() is %s, but should be a function. Is neovim pre v0.10.0?\n"):format(vim.inspect(vim.system))
     end
 
     vim.notify(msg, vim.log.levels.WARN)
@@ -42,8 +38,9 @@ M.mock = {
     stop = noop,
     start = noop,
     _dump_state = explain,
-    is_running = function() return false end,
+    is_running = function()
+        return false
+    end,
 }
-
 
 return M
