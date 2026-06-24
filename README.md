@@ -17,14 +17,9 @@ It's much simpler to just switch to the correct layout in NORMAL mode, and resto
 
 ## Usage
 
-
 > [!NOTE]
 > This plugin was tested and works fine on niri and neovim from arch repos, so everything latest stable.
 > It most likely will work on something older so long as it's not completely ancient, but that's what it's tested at, keep this in mind.
-
-### Requirements
-
-* Most likely will work on any version released within last few years, definitely works on Neovim v0.10.0+
 
 ### Install
 
