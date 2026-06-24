@@ -24,7 +24,7 @@ It's much simpler to just switch to the correct layout in NORMAL mode, and resto
 
 ### Requirements
 
-* Neovim v0.10.0+ - because it's using `vim.system()` since it has a proper timeout parameter and can get an exit code, unlike `io.popen()`
+* Most likely will work on any version released within last few years, definitely works on Neovim v0.10.0+
 
 ### Install
 

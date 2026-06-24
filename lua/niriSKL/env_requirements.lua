@@ -1,7 +1,7 @@
 M = {}
 
 function M.are_we_good()
-    if vim.env.XDG_CURRENT_DESKTOP ~= "niri" or vim.env.SSH_TTY ~= nil or vim.system == nil then
+    if vim.env.XDG_CURRENT_DESKTOP ~= "niri" or vim.env.SSH_TTY ~= nil then
         return false
     end
     return true
@@ -24,9 +24,9 @@ local function explain(_)
         msg = msg .. ("$SSH_TTY = %s, but shouldn't be defined. Are we running inside ssh session?\n"):format(vim.env.SSH_TTY)
     end
 
-    if vim.system == nil then
-        msg = msg .. ("vim.system() is %s, but should be a function. Is neovim pre v0.10.0?\n"):format(vim.inspect(vim.system))
-    end
+    -- if vim.system == nil then
+    --     msg = msg .. ("vim.system() is %s, but should be a function. Is neovim pre v0.10.0?\n"):format(vim.inspect(vim.system))
+    -- end
 
     vim.notify(msg, vim.log.levels.WARN)
 end

@@ -34,9 +34,26 @@ local function print_warn(...)
     end
 end
 
+local function run_legacy(cmd)
+    if vim.fn.executable("timeout") == 1 then
+        cmd = vim.list_extend({ "timeout", string.format("%.3fs", config._ipc_timeout_ms / 1000) }, cmd)
+    end
+
+    -- print_info(vim.inspect(cmd))
+    local out = vim.fn.system(cmd)
+    if vim.v.shell_error ~= 0 then
+        print_warn(("'%s' exited with code %d\nOUTPUT:\n%s"):format(table.concat(cmd, " "), vim.v.shell_error, out))
+        return
+    end
+
+    return { code = vim.v.shell_error, stdout = out, stderr = "" }
+end
+
 local function run(cmd)
-    -- TODO: maybe fallback to vim.fn.system() + coreutils timeout for pre v0.10.0;
-    --       see lazy.nvim install snip
+    if vim.system == nil then
+        return run_legacy(cmd)
+    end
+
     local result = vim.system(cmd, { text = true }):wait(config._ipc_timeout_ms)
 
     if result.code == 124 then
@@ -211,6 +228,14 @@ function M._dump_state()
     print("config =", vim.inspect(config))
     print("vim.b._niriSKL_insert_mode_layout =", vim.inspect(vim.b._niriSKL_insert_mode_layout))
     print("vim.g._niriSKL_is_running =", vim.inspect(vim.g._niriSKL_is_running))
+    if vim.system == nil then
+        print("Using legacy vim.fn.system() instead of modern vim.system()")
+        if vim.fn.executable("timeout") == 1 then
+            print("...✅together with the coreutils 'timeout' to compensate for the lack of :wait()")
+        else
+            print("...❗without timeout capability, if anything goes wrong")
+        end
+    end
     print("\n")
 end
 
