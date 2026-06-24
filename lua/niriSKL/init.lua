@@ -41,12 +41,14 @@ local function run_legacy(cmd)
 
     -- print_info(vim.inspect(cmd))
     local out = vim.fn.system(cmd)
-    if vim.v.shell_error ~= 0 then
-        print_warn(("'%s' exited with code %d\nOUTPUT:\n%s"):format(table.concat(cmd, " "), vim.v.shell_error, out))
+    local result = { stdout = out, stderr = "", code = vim.v.shell_error }
+
+    if result.code ~= 0 then
+        print_warn(("'%s' exited with code %d\nOUTPUT:\n%s"):format(table.concat(cmd, " "), result.code, result.stdout))
         return
     end
 
-    return { code = vim.v.shell_error, stdout = out, stderr = "" }
+    return result
 end
 
 local function run(cmd)
