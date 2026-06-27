@@ -58,7 +58,7 @@ vim.api.nvim_create_user_command("NiriSKL", niriSKL_cmd, {
         local found = {}
         for _, arg in ipairs(args) do
             -- true for plain text matching, otherwise it's a pattern
-            if arg:find(subcmd_arg_lead, 1, true) then
+            if arg:find(subcmd_arg_lead, 1, true) == 1 then
                 table.insert(found, arg)
             end
         end
