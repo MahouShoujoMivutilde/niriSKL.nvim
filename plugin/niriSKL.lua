@@ -46,11 +46,24 @@ vim.api.nvim_create_user_command("NiriSKL", niriSKL_cmd, {
             "enable",
             "_dump_state",
         }
-        return vim.iter(args)
-            :filter(function(arg)
-                return arg:find(subcmd_arg_lead) ~= nil
-            end)
-            :totable()
+
+        -- XXX: apparently all of this is actually v0.10.0+
+        --
+        -- return vim.iter(args)
+        --     :filter(function(arg)
+        --         return arg:find(subcmd_arg_lead) ~= nil
+        --     end)
+        --     :totable()
+
+        local found = {}
+        for _, arg in ipairs(args) do
+            -- true for plain text matching, otherwise it's a pattern
+            if arg:find(subcmd_arg_lead, 1, true) then
+                table.insert(found, arg)
+            end
+        end
+
+        return found
     end,
 })
 
